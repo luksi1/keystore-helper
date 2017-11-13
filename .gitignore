@@ -1,0 +1,9 @@
+*.pem
+*.p12
+*.cer
+*.pfx
+*.jks
+*.bak
+*.key
+*.crt
+.password

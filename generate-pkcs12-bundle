@@ -1,0 +1,129 @@
+#!/bin/bash 
+#
+# Create a SITHS certificate bundle
+
+set -e
+
+# import error functions
+. functions/errors.sh
+
+# import openssl library
+. functions/openssl.sh
+
+INTERMEDIATE_CERTIFICATE_PP='certs/siths_type_3_ca_v1_pp.pem'
+ROOT_CERTIFICATE_PP='certs/siths_root_ca_v1_pp.pem'
+INTERMEDIATE_CERTIFICATE='certs/siths_type_3_ca_v1.pem'
+ROOT_CERTIFICATE='certs/siths_root_ca_v1.pem'
+DH_PARAM='certs/dhparam_1024.pem'
+
+if [[ -f .password ]]; then
+  PASSWORD=$(cat .password)
+fi
+
+# Validate environmental variables
+if [[ ! -f $INTERMEDIATE_CERTIFICATE_PP ]]; then
+  echo "The intermediate '$INTERMEDIATE_CERTIFICATE_PP' does not exist"
+  exit 1
+fi
+
+if [[ ! -f $ROOT_CERTIFICATE_PP ]]; then
+  echo "The root '$ROOT_CERTIFICATE_PP' does not exist"
+  exit 1
+fi
+
+if [[ ! -f $INTERMEDIATE_CERTIFICATE ]]; then
+  echo "The intermediate '$INTERMEDIATE_CERTIFICATE' does not exist"
+  exit 1
+fi
+
+if [[ ! -f $ROOT_CERTIFICATE ]]; then
+  echo "The root '$ROOT_CERTIFICATE' does not exist"
+  exit 1
+fi
+
+if [[ ! -f $DH_PARAM ]]; then
+  echo "A Diffie-Helman param file '$DH_PARAM' does not exist"
+  exit 1
+fi
+
+
+function usage {
+  echo "This script takes three parameters: "
+  echo "  --in The certificate that would like to read from"
+  echo "  --bundle The name of the certificate bundle you would like to create (optional)"
+  echo "  --environment Whether you would like to use SITHS test or prod certificates. This parameters accepts the string 'prod' or 'test'"
+  echo "Ex:"
+  echo "  $(basename $0) --in <The certificate to read in> --bundle <The bundle you wish to create> --environment <test|prod>"
+  echo "Alternatively:"
+  echo "  $(basename $0) -i <The certificate to read in> -b <The bundle you wish to create> -e <test|prod>"
+  echo "Additionally, you can omit the bundle's name and a file will be created with the input file with .bundle appended"
+}
+
+while [ "$1" != "" ]; do 
+  case $1 in
+    -i | --in )                 shift
+                         CERT_IN=$1
+                         ;;
+    -b | --bundle )      shift
+                         BUNDLE=$1
+                         ;;
+    -e | --environment ) shift
+                         ENVIRONMENT=$1
+                         ;;
+    -h | --help )        usage
+                         exit
+                         ;;
+    * )                  usage
+                         exit 1
+    esac
+    shift
+done
+
+if [[ $CERT_IN == "" || $ENVIRONMENT == "" ]]; then
+  usage
+  exit 1
+fi
+
+# Create bundle name if it doesn't exist
+if [[ $BUNDLE == "" ]]; then
+  filename=$(basename "$CERT_IN")
+  extension="${filename##*.}"
+  filename="${filename%.*}"
+  BUNDLE="${filename}.bundle.${extension}"
+fi
+
+# Use the appropriate root and intermediate certificates depending on
+# your environment
+if [[ ${ENVIRONMENT} == "prod" ]]; then
+  root=$ROOT_CERTIFICATE
+  intermediate=$INTERMEDIATE_CERTIFICATE
+elif [[ ${ENVIRONMENT} == "test" ]]; then
+  root=$ROOT_CERTIFICATE_PP
+  intermediate=$INTERMEDIATE_CERTIFICATE_PP
+fi
+
+# Generate a random number so we don't accidentally re-write a file
+# with the same name, and create a few temp files for our keys and certs
+random_no=$(( ( RANDOM % 1000 )  + 1 ))
+pem_cert_tmp="/tmp/cert.${random_no}.pem"
+pem_key_tmp="/tmp/key.${random_no}.pem"
+tmp_pem="/tmp/out.${random_no}.pem"
+create_pkcs12_cert $CERT_IN $pem_cert_tmp
+create_pkcs12_key $CERT_IN $pem_key_tmp
+
+# append the root and intermediate with a tailing diffie-helman parameter
+cat $pem_cert_tmp $intermediate $root $DH_PARAM  > $tmp_pem
+
+# sign the bundle with our key
+create_pkcs12_bundle $pem_key_tmp $tmp_pem $BUNDLE
+
+if [[ -f $BUNDLE ]]; then
+  ok $BUNDLE
+else
+  fail $BUNDLE
+fi
+
+# clean up
+rm $pem_cert_tmp
+rm $pem_key_tmp
+rm $tmp_pem
