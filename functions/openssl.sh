@@ -188,8 +188,5 @@ function create_pem_files_from_jks {
 SAVEIFS=$IFS
 IFS=$(echo -en "\n\b")
 for i in `keytool -list -v -keystore $keystore -storepass $pass | grep Alias | awk -F: '{print $2}' | sed 's/^\s//g'`; do keytool -keystore $keystore -alias $i -exportcert -storepass $pass -rfc -file ${i}.pem; done
-#for i in `keytool -list -v -keystore $keystore -storepass $pass | grep Alias | awk -F: '{print $2}'`; do keytool -keystore $keystore -alias $i -exportcert -storepass $pass | openssl x509 -inform der -text > ${i}.pem; done
-#for i in `keytool -list -v -keystore $keystore -storepass $pass | grep Alias | awk -F: '{print $2}'`; do keytool -exportcert -alias $alias -storepass $password -keystore $keystore -rfc -file ${alias}.pem; done
-
 
 }
