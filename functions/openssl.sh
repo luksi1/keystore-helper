@@ -172,3 +172,24 @@ function convert_p12_to_jks {
   keytool -importkeystore -srckeystore $in -srcstoretype pkcs12 -srcstorepass $pass -srcalias 1 -destkeystore $out -deststoretype jks -deststorepass $pass -destalias 1
 
 }
+
+##################
+# Create pem files from a Java keystore
+# Arguments:
+#   keystore
+#   password
+# Returns:
+#   pem files in the form ${alias}.pem
+##################
+function create_pem_files_from_jks {
+  keystore=$1
+  pass=$2
+
+SAVEIFS=$IFS
+IFS=$(echo -en "\n\b")
+for i in `keytool -list -v -keystore $keystore -storepass $pass | grep Alias | awk -F: '{print $2}' | sed 's/^\s//g'`; do keytool -keystore $keystore -alias $i -exportcert -storepass $pass -rfc -file ${i}.pem; done
+#for i in `keytool -list -v -keystore $keystore -storepass $pass | grep Alias | awk -F: '{print $2}'`; do keytool -keystore $keystore -alias $i -exportcert -storepass $pass | openssl x509 -inform der -text > ${i}.pem; done
+#for i in `keytool -list -v -keystore $keystore -storepass $pass | grep Alias | awk -F: '{print $2}'`; do keytool -exportcert -alias $alias -storepass $password -keystore $keystore -rfc -file ${alias}.pem; done
+
+
+}
