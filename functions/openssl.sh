@@ -157,9 +157,10 @@ function convert_jks_to_p12 {
 
   in=$1
   out=$2
+  alias=$3
   pass=$3
 
-  keytool -importkeystore -srckeystore $in -destkeystore $out -srcstoretype JKS -deststoretype PKCS12 -srcstorepass $pass -deststorepass $pass -srcalias server -destalias server -srckeypass $pass -destkeypass $pass -noprompt
+  keytool -importkeystore -srckeystore $in -destkeystore $out -srcstoretype JKS -deststoretype PKCS12 -srcstorepass $pass -deststorepass $pass -srcalias $alias -destalias 1 -srckeypass $pass -destkeypass $pass -noprompt
 
 }
 
@@ -188,5 +189,29 @@ function create_pem_files_from_jks {
 SAVEIFS=$IFS
 IFS=$(echo -en "\n\b")
 for i in `keytool -list -v -keystore $keystore -storepass $pass | grep Alias | awk -F: '{print $2}' | sed 's/^\s//g'`; do keytool -keystore $keystore -alias $i -exportcert -storepass $pass -rfc -file ${i}.pem; done
+
+}
+
+function create_crt_from_jks_alias {
+  keystore=$1
+  pass=$2
+  aliasname=$3
+  keypass=$4
+
+SAVEIFS=$IFS
+IFS=$(echo -en "\n\b")
+keytool -export -alias $aliasname -file /tmp/${aliasname}.der -keystore $keystore -storepass $pass; openssl x509 -inform der -in /tmp/${aliasname}.der -out ${aliasname}.crt; rm /tmp/${aliasname}.der
+
+}
+
+function create_key_from_jks_alias {
+  keystore=$1
+  pass=$2
+  aliasname=$3
+  keypass=$4
+
+SAVEIFS=$IFS
+IFS=$(echo -en "\n\b")
+keytool -importkeystore -srckeystore $keystore -destkeystore /tmp/${aliasname}.p12 -deststoretype PKCS12 -srcstorepass $pass -deststorepass $pass -srckeypass $keypass -alias $aliasname; openssl pkcs12 -in /tmp/${aliasname}.p12 -nodes -nocerts -out ${aliasname}.key -passin pass:${PASSWORD}; rm /tmp/${aliasname}.p12
 
 }

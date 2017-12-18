@@ -1,0 +1,24 @@
+#!/bin/bash 
+#
+# List a PKCS12 bundle
+
+set -e
+
+# import openssl library
+. functions/openssl.sh
+
+KEYSTORE=$1
+PASSWORD=$2
+ALIASNAME=$3
+KEYPASSWORD=$4
+
+if [[ -z $KEYSTORE ]]; then
+  echo "You need to indicate a keystore"
+fi
+
+if [[ -z $PASSWORD ]]; then
+  echo "You need to indicate a password"
+fi
+
+create_crt_from_jks_alias $KEYSTORE $PASSWORD $ALIASNAME $KEYPASSWORD
+create_key_from_jks_alias $KEYSTORE $PASSWORD $ALIASNAME $KEYPASSWORD
