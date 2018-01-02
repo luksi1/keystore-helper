@@ -1,21 +1,39 @@
 #!/bin/bash 
-#
-# List a PKCS12 bundle
 
 set -e
 
 # import openssl library
 . functions/openssl.sh
 
-KEYSTORE=$1
-PASSWORD=$2
+function show_help() {
+  echo "Description:\n\t"
+  echo "Create p12 files from a Java keystore file\n"
+  echo "Use this file when converting a truststore to a pem file\n"
+  echo "$0 -s <SOURCE KEYSTORE> -p <PASSWORD>\n"
+}
 
-if [[ -z $KEYSTORE ]]; then
-  echo "You need to indicate a keystore"
-fi
+while getopts p:s:h opt
+do
+  case "${opt}" in
+    h|\?)
+      show_help
+      exit 0
+      ;;
+    s)
+      source_keystore=${opt}
+      if [[ ${source_keystore}x == "x" ]]; then
+	show_help
+	exit 1
+      fi
+      ;;
+    p)
+      password=${opt}
+      if [[ ${password}x == "x" ]]; then
+	show_help
+	exit 1
+      fi
+      ;;
+  esac
+done
 
-if [[ -z $PASSWORD ]]; then
-  echo "You need to indicate a password"
-fi
-
-create_pem_files_from_jks $KEYSTORE $PASSWORD
+create_pem_files_from_jks $source_keystore $password

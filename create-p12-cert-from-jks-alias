@@ -5,17 +5,47 @@ set -e
 # import openssl library
 . functions/openssl.sh
 
-KEYSTORE=$1
-PASSWORD=$2
-ALIASNAME=$3
-KEYPASSWORD=$4
+function show_help() {
+  echo "Description:\n\t"
+  echo "Create crt file from Java keystore alias.\n"
+  echo "$0 -s <SOURCE KEYSTORE> -p <PASSWORD> -k <KEY PASSWORD> -a <ALIAS NAME>\n"
+}
 
-if [[ -z $KEYSTORE ]]; then
-  echo "You need to indicate a keystore"
-fi
+while getopts p:s:a:k:h opt
+do
+  case "${opt}" in
+    h|\?)
+      show_help
+      exit 0
+      ;;
+    s)
+      source_keystore=${opt}
+      if [[ ${source_keystore}x == "x" ]]; then
+	show_help
+	exit 1
+      fi
+      ;;
+    a)
+      alias_name=${opt}
+      if [[ ${alias}x == "x" ]]; then
+	show_help
+	exit 1
+      fi
+      ;;
+    k)
+      key_password=${opt}
+      if [[ ${key_password}x == "x" ]]; then
+	show_help
+	exit 1
+      fi
+      ;;
+    p)
+      password=${opt}
+      if [[ ${password}x == "x" ]]; then
+	show_help
+	exit 1
+      fi
+  esac
+done
 
-if [[ -z $PASSWORD ]]; then
-  echo "You need to indicate a password"
-fi
-
-create_crt_from_jks_alias $KEYSTORE $PASSWORD $ALIASNAME $KEYPASSWORD
+create_crt_from_jks_alias $source_keystore $password $alias_name $key_password

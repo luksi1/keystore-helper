@@ -1,16 +1,45 @@
 #!/bin/bash 
-#
-# List a PKCS12 bundle
 
 set -e
 
 # import openssl library
 . functions/openssl.sh
 
-KEYSTORE=$1
+function show_help() {
+  echo "Description:\n\t"
+  echo "Convert a P12 keystore to a Java keystore store.\n"
+  echo "The resulting Java keystore file will then contain your P12 within the default alias: 1\n\n"
+  echo "$0 -s <SOURCE KEYSTORE> -d <DESTINATION KEYSTORE> -p <PASSWORD>"
+}
 
-if [[ -z $KEYSTORE ]]; then
-  echo "You need to indicate a keystore"
-fi
+while getopts p:s:d:h opt
+do
+  case "${opt}" in
+    h|\?)
+      show_help
+      exit 0
+      ;;
+    s)
+      source_keystore=${opt}
+      if [[ ${source_keystore}x == "x" ]]; then
+	show_help
+	exit 1
+      fi
+      ;;
+    d)
+      destination_keystore=${opt}
+      if [[ ${destination_keystore}x == "x" ]]; then
+	show_help
+	exit 1
+      fi
+      ;;
+    p)
+      password=${opt}
+      if [[ ${password}x == "x" ]]; then
+	show_help
+	exit 1
+      fi
+  esac
+done
 
-convert_p12_to_jks $KEYSTORE $2 $3
+convert_p12_to_jks $source_keystore $destination_keystore $password

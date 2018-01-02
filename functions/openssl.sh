@@ -135,11 +135,9 @@ function create_pkcs12_bundle {
 }
 
 function change_pkcs12_bundle_password {
-
   in=$1
   oldpass=$2
   newpass=$3
-
   if [[ -f $in ]]; then
     openssl pkcs12 -in $in -out /tmp/temp.pem -nodes -passin pass:${oldpass}
     if [[ $? -gt 0 ]]; then
@@ -150,7 +148,6 @@ function change_pkcs12_bundle_password {
     openssl pkcs12 -export -out $in -in /tmp/temp.pem -passout pass:${newpass}
     rm /tmp/temp.pem
   fi
-
 }
 
 function convert_jks_to_p12 {
@@ -161,7 +158,6 @@ function convert_jks_to_p12 {
   pass=$3
 
   keytool -importkeystore -srckeystore $in -destkeystore $out -srcstoretype JKS -deststoretype PKCS12 -srcstorepass $pass -deststorepass $pass -srcalias $alias -destalias 1 -srckeypass $pass -destkeypass $pass -noprompt
-
 }
 
 function convert_p12_to_jks {
