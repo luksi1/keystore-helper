@@ -208,6 +208,5 @@ function create_key_from_jks_alias {
 
 SAVEIFS=$IFS
 IFS=$(echo -en "\n\b")
-keytool -importkeystore -srckeystore $keystore -destkeystore /tmp/${aliasname}.p12 -deststoretype PKCS12 -srcstorepass $pass -deststorepass $pass -srckeypass $keypass -alias $aliasname; openssl pkcs12 -in /tmp/${aliasname}.p12 -nodes -nocerts -out ${aliasname}.key -passin pass:${PASSWORD}; rm /tmp/${aliasname}.p12
-
+keytool -importkeystore -srckeystore $keystore -destkeystore /tmp/${aliasname}.p12 -deststoretype PKCS12 -srcstorepass $pass -deststorepass $pass -srckeypass $keypass -destkeypass $keypass -alias $aliasname; openssl pkcs12 -in /tmp/${aliasname}.p12 -nodes -nocerts -out ${aliasname}.key -passin pass:${PASSWORD}; rm /tmp/${aliasname}.p12
 }
