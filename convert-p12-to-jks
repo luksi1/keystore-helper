@@ -4,42 +4,42 @@ set -e
 
 # import openssl library
 . functions/openssl.sh
+. functions/general.sh
 
-function show_help() {
-  echo "Description:\n\t"
-  echo "Convert a P12 keystore to a Java keystore store.\n"
-  echo "The resulting Java keystore file will then contain your P12 within the default alias: 1\n\n"
+function usage() {
+  echo "Description:"
+  echo ""
+  echo "Convert a P12 keystore to a Java keystore store."
+  echo ""
+  echo "The resulting Java keystore file will then contain your P12 within the default alias: 1"
+  echo ""
+  echo ""
   echo "$0 -s <SOURCE KEYSTORE> -d <DESTINATION KEYSTORE> -p <PASSWORD>"
 }
 
-while getopts p:s:d:h opt
-do
-  case "${opt}" in
-    h|\?)
-      show_help
-      exit 0
-      ;;
-    s)
-      source_keystore=${opt}
-      if [[ ${source_keystore}x == "x" ]]; then
-	show_help
-	exit 1
-      fi
-      ;;
-    d)
-      destination_keystore=${opt}
-      if [[ ${destination_keystore}x == "x" ]]; then
-	show_help
-	exit 1
-      fi
-      ;;
-    p)
-      password=${opt}
-      if [[ ${password}x == "x" ]]; then
-	show_help
-	exit 1
-      fi
-  esac
+while [ "$1" != "" ]; do
+  case $1 in
+    -h | --help ) usage
+                  exit
+                  ;;
+    -s | -k | --source_keystore | --keystore ) shift
+                                               source_keystore=$1
+                                               ;;
+    -d | --destination_keystore ) shift
+                                  destination_keystore=$1
+                                  ;;
+    -p | --password ) shift
+                      password=$1
+                      ;;
+    * ) usage
+        exit 1
+        ;;
+    esac
+    shift
 done
+
+check_param $source_keystore
+check_param $destination_keystore
+check_param $password
 
 convert_p12_to_jks $source_keystore $destination_keystore $password
