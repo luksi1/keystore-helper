@@ -1,0 +1,27 @@
+#!/bin/bash 
+
+function usage() {
+   echo "Extract the key and certificate from a PFX or P12 file"
+   echo "Ex:"
+   echo "  $0 -k <KEYSTORE>"
+}
+
+while [ "$1" != "" ]; do
+  case $1 in
+    -h | --help ) usage
+                  exit
+                  ;;
+    -s | -k | --keystore | --source_keystore ) shift
+                                               keystore=$1
+                                               ;;
+    -p | --password ) shift
+                      password=$1
+                      ;;
+    * ) usage
+        exit 1
+    esac
+    shift
+done
+
+openssl pkcs12 -in "$keystore"  -nocerts -out key.pem -passin pass:${password} -passout pass:${password}
+openssl pkcs12 -in "$keystore" -clcerts -nokeys -out cert.pem -passin pass:${password} -passout pass:${password}
