@@ -153,11 +153,10 @@ function change_pkcs12_bundle_password {
 function convert_jks_to_p12 {
 
   in=$1
-  out=$2
+  pass=$2
   alias=$3
-  pass=$3
 
-  keytool -importkeystore -srckeystore $in -destkeystore $out -srcstoretype JKS -deststoretype PKCS12 -srcstorepass $pass -deststorepass $pass -srcalias $alias -destalias 1 -srckeypass $pass -destkeypass $pass -noprompt
+  keytool -importkeystore -srckeystore $in -destkeystore "${in}.p12" -srcstoretype JKS -deststoretype PKCS12 -srcstorepass $pass -deststorepass $pass -srcalias $alias -destalias 1 -srckeypass $pass -destkeypass $pass -noprompt
 }
 
 function convert_p12_to_jks {

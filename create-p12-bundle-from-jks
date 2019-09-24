@@ -1,0 +1,40 @@
+#!/bin/bash 
+#
+set -e
+
+# import openssl library
+. functions/openssl.sh
+
+function usage() {
+  echo -e "Description:\n"
+  echo -e "\tCreate p12 file from Java keystore alias.\n"
+  echo -e "Usage:\n"
+  echo -e "\t$0 -s <KEYSTORE> -p <PASSWORD> -a <ALIAS NAME>\n"
+}
+
+while [ "$1" != "" ]; do
+  case $1 in
+    -h | --help ) usage
+                  exit
+                  ;;
+    -s | --keystore ) shift
+                             keystore=$1
+                             ;;
+    -a | --alias ) shift
+                   alias=$1
+                   ;;
+    -p | --password ) shift
+                      password=$1
+                      ;;
+    * ) usage
+        exit 1
+    esac
+    shift
+done
+
+if [[ -z $keystore || -z $alias || -z $password ]]; then
+  usage
+  exit 1
+fi
+
+convert_jks_to_p12 $keystore $password $alias

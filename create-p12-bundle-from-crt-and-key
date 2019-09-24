@@ -1,0 +1,43 @@
+#!/bin/bash 
+#
+set -e
+
+# import openssl library
+. functions/openssl.sh
+
+function usage() {
+  echo -e "Description:\n"
+  echo -e "\tCreate .p12 bundle from certificate and key.\n"
+  echo -e "Usage:"
+  echo -e "\t$0 -k <KEY FILE> -c <CRT FILE> -m <CA FILE> -p <PASSWORD>\n"
+}
+
+while [ "$1" != "" ]; do
+  case $1 in
+    -h | --help ) usage
+                  exit
+                  ;;
+    -k | --key_file ) shift
+                             key_file=$1
+                             ;;
+    -c | --crt_file ) shift
+                             crt_file=$1
+                             ;;
+    -m | --ca_file ) shift
+                             ca_file=$1
+                             ;;
+    -p | --password ) shift
+                      password=$1
+                      ;;
+    * ) usage
+        exit 1
+    esac
+    shift
+done
+
+if [[ ${key_file}x == "x" || ${crt_file}x == "x" || ${ca_file}x == "x" || ${password}x == "x" ]]; then
+  usage
+  exit 1
+fi
+
+openssl pkcs12 -export -out certificate.pfx -inkey ${key_file} -in ${crt_file} -certfile ca.crt

@@ -1,0 +1,38 @@
+#!/bin/bash 
+#
+set -e
+
+# import openssl library
+. functions/openssl.sh
+
+function usage() {
+  echo "Description:\n\t"
+  echo "Create crt file from Java keystore alias.\n"
+  echo "$0 -s <KEYSTORE> -p <PASSWORD> -a <ALIAS NAME>\n"
+}
+
+while [ "$1" != "" ]; do
+  case $1 in
+    -h | --help ) usage
+                  exit
+                  ;;
+    -s | --keystore ) shift
+                             keystore=$1
+                             ;;
+    -a | --alias ) shift
+                   alias=$1
+                   ;;
+    -p | --password ) shift
+                      password=$1
+                      ;;
+    * ) usage
+        exit 1
+    esac
+    shift
+done
+
+if [[ ${keystore}x == "x" || ${alias}x == "x" || ${password}x == "x" ]]; then
+  usage
+fi
+
+create_crt_from_jks_alias $source_keystore $password $alias $password
