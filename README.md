@@ -50,7 +50,7 @@
 ./create-siths-bundle -i CERTIFICATE FILE TO READ FROM -b BUNDLE NAME YOU WISH TO CREATE -e ENVIRONMENT
 ```
 
-### Extract the key and certificate from a PFX or P12 file
+### Extract the key and certificate from a PFX or PKCS12 file
 
 ```sh
 ./extract-cert-and-key-from-pfx -s SOURCE KEYSTORE -p PASSWORD

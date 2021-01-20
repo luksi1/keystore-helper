@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function usage() {
-   echo "Extract the key and certificate from a PFX or P12 file"
+   echo "Extract the key and certificate from a PFX or PKCS12 file"
    echo "Ex:"
    echo "  $0 -k <KEYSTORE> -p <PASSWORD>"
 }
