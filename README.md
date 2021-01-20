@@ -56,7 +56,7 @@
 ./extract-cert-and-key-from-pfx -s SOURCE KEYSTORE -p PASSWORD
 ```
 
-### Extract the key with RSA password removed and certificate from a PFX or P12 file
+### Extract the key and certificate from a PFX or PKCS12 file and remove the passphrase
 
 ```sh
 ./extract-cert-and-key-from-pfx-and-remove-rsa-password -s SOURCE KEYSTORE -p PASSWORD
