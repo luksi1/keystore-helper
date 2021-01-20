@@ -1,9 +1,9 @@
 #!/bin/bash
 
 function usage() {
-   echo "Extract the key and certificate from a PFX or PKCS12 file"
-   echo "Ex:"
-   echo "  $0 -k <KEYSTORE> -p <PASSWORD>"
+  echo "Extract key (.key) and certificate (.crt) from a PFX or PKCS12 file"
+  echo "Ex:"
+  echo "  $0 -k <KEYSTORE> -p <PASSWORD>"
 }
 
 while [ "$1" != "" ]; do
@@ -23,10 +23,12 @@ while [ "$1" != "" ]; do
     shift
 done
 
-if [[ -z $keystore || -z password ]]; then
+if [[ -z $keystore || -z $password ]]; then
   usage
   exit 1
 fi
 
-openssl pkcs12 -in "$keystore"  -nocerts -out key.pem -passin pass:${password} -passout pass:${password}
-openssl pkcs12 -in "$keystore" -clcerts -nokeys -out cert.pem -passin pass:${password} -passout pass:${password}
+openssl pkcs12 -in "$keystore" -nocerts -out "${keystore%.*}.key" -passin pass:"${password}" -passout pass:"${password}"
+echo "Created ${keystore%.*}.key"
+openssl pkcs12 -in "$keystore" -clcerts -nokeys -out "${keystore%.*}.crt" -passin pass:"${password}" -passout pass:"${password}"
+echo "Created ${keystore%.*}.crt"
