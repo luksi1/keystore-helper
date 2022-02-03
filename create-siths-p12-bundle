@@ -5,10 +5,10 @@
 set -e
 
 # import error functions
-. functions/errors.sh
+source $(dirname $0)/functions/errors.sh
 
 # import openssl library
-. functions/openssl.sh
+source $(dirname $0)/functions/openssl.sh
 
 INTERMEDIATE_CERTIFICATE_PP='certs/siths_type_3_ca_v1_pp.pem'
 ROOT_CERTIFICATE_PP='certs/siths_root_ca_v1_pp.pem'
